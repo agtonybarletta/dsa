@@ -31,19 +31,36 @@ class Solution:
     """
     
     def largestDivisibleSubset(self, nums: List[int]) -> List[int]:
+
         lds = []
         nums.sort()
         N = len(nums)
-        
-        dp = [(0,0)]*N
 
-        for i, n in nums:
-            max_dp = (0,0)
-            for k, m in range(nums[:i+1]):
-                if m%k ==0 and dp[k] + 1 > max_dp:
-                    max_dp = (dp[k] : + 1, k)
-            dp[i] = max_dp
-        
+        # length of longest disible subset ending on index i
+        dp = [1 for _ in  range(N)]
+        # prev number of the divisible subset
+        prev = [i for i in  range(N)]
+
+        # the index i of the last element of the longest divisible subset
+        best_i = 0 
+        for i in range(N):
+            for j in range(0, i):
+                if nums[i] % nums[j] == 0:
+                    # if improves
+                    if dp[j] +1 > dp[i]:
+                        dp[i] = dp[j] + 1
+                        prev[i] = j
+            if dp[best_i] < dp[i]:
+                best_i = i
+
+        # reconstruct largest divisible subset by traversing prevs
+        i = best_i
+        lds.append(nums[i])
+        while i != prev[i]:
+            i = prev[i]
+            lds.append(nums[i])
+        return list(reversed(lds))
+
 
 
 
@@ -68,4 +85,10 @@ if __name__ == "__main__":
     output = Solution().largestDivisibleSubset(**test_case['input'])
     TestCase().assertEqual(output, test_case['expected'])
 
-    
+    test_case = {'input': {'nums': [5,9,18,54,108,540,90,180,360,720]},  'expected': [9,18,90,180,360,720]}
+    output = Solution().largestDivisibleSubset(**test_case['input'])
+    TestCase().assertEqual(output, test_case['expected'])
+
+    test_case = {'input': {'nums': [1]},  'expected': [1]}
+    output = Solution().largestDivisibleSubset(**test_case['input'])
+    TestCase().assertEqual(output, test_case['expected'])
